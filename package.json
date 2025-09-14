@@ -1,0 +1,38 @@
+{
+  "name": "audio-vibration-player",
+  "version": "1.0.0",
+  "description": "一个支持音乐律动振动的网页音频播放器",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server -p 8080 -c-1",
+    "dev": "http-server -p 8080 -c-1",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "audio",
+    "music",
+    "vibration",
+    "web-audio",
+    "player",
+    "mobile",
+    "rhythm",
+    "beat-detection"
+  ],
+  "author": "Audio Vibration Player Team",
+  "license": "MIT",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/audio-vibration-player.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/audio-vibration-player/issues"
+  },
+  "homepage": "https://your-app-name.vercel.app"
+}
