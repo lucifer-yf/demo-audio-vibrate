@@ -7,7 +7,7 @@
     "start": "http-server -p 8080 -c-1",
     "dev": "http-server -p 8080 -c-1",
     "build": "echo 'No build step required for static site'",
-    "deploy": "vercel --prod"
+    "deploy": "npx vercel --prod"
   },
   "keywords": [
     "audio",
