@@ -10,7 +10,7 @@ class AudioVisualizer {
         this.audioAnalyzer = null;
         this.animationId = null;
         this.isRunning = false;
-        
+
         // 可视化配置
         this.config = {
             fftSize: 256,
@@ -22,7 +22,7 @@ class AudioVisualizer {
             beatColor: '#FF5722',
             gradientColors: ['#2196F3', '#21CBF3', '#00BCD4']
         };
-        
+
         // 可视化状态
         this.state = {
             beatDetected: false,
@@ -30,8 +30,12 @@ class AudioVisualizer {
             averageVolume: 0,
             peakFrequency: 0
         };
-        
-        this.setupCanvas();
+
+        // 延迟初始化canvas，确保DOM完全渲染
+        setTimeout(() => {
+            this.setupCanvas();
+        }, 100);
+
         console.log('AudioVisualizer initialized');
     }
 
@@ -40,16 +44,35 @@ class AudioVisualizer {
         // 设置画布分辨率
         const rect = this.canvas.getBoundingClientRect();
         const dpr = window.devicePixelRatio || 1;
-        
-        this.canvas.width = rect.width * dpr;
-        this.canvas.height = rect.height * dpr;
-        
+
+        // 如果getBoundingClientRect返回0，使用默认尺寸
+        let width = rect.width;
+        let height = rect.height;
+
+        if (width === 0 || height === 0) {
+            // 强制设置默认尺寸
+            width = 400;
+            height = 150; // 默认高度
+            console.log('Canvas rect is 0, using default size:', width, 'x', height);
+        }
+
+        this.canvas.width = width * dpr;
+        this.canvas.height = height * dpr;
+
         this.ctx.scale(dpr, dpr);
-        
+
         // 设置画布样式
-        this.canvas.style.width = rect.width + 'px';
-        this.canvas.style.height = rect.height + 'px';
-        
+        this.canvas.style.width = width + 'px';
+        this.canvas.style.height = height + 'px';
+
+        console.log('Canvas setup:', {
+            cssWidth: width,
+            cssHeight: height,
+            canvasWidth: this.canvas.width,
+            canvasHeight: this.canvas.height,
+            dpr: dpr
+        });
+
         // 初始化背景
         this.clearCanvas();
     }
@@ -63,7 +86,7 @@ class AudioVisualizer {
     // 开始可视化
     start() {
         if (this.isRunning) return;
-        
+
         this.isRunning = true;
         this.animate();
         console.log('Visualizer started');
@@ -76,19 +99,18 @@ class AudioVisualizer {
             cancelAnimationFrame(this.animationId);
             this.animationId = null;
         }
-        this.clearCanvas();
         console.log('Visualizer stopped');
     }
 
     // 更新可视化数据
     update(analysisData) {
         if (!analysisData) return;
-        
+
         // 更新状态
         this.state.beatDetected = analysisData.beat?.detected || false;
         this.state.averageVolume = analysisData.volume || 0;
         this.state.peakFrequency = analysisData.frequency?.peak || 0;
-        
+
         if (this.state.beatDetected) {
             this.state.lastBeatTime = Date.now();
         }
@@ -97,7 +119,7 @@ class AudioVisualizer {
     // 动画循环
     animate() {
         if (!this.isRunning) return;
-        
+
         this.draw();
         this.animationId = requestAnimationFrame(() => this.animate());
     }
@@ -113,7 +135,7 @@ class AudioVisualizer {
             // 获取频谱数据
             const frequencyData = this.audioAnalyzer.getFrequencyData();
             const timeData = this.audioAnalyzer.getTimeData();
-            
+
             if (!frequencyData || !timeData) {
                 this.drawPlaceholder();
                 return;
@@ -121,21 +143,21 @@ class AudioVisualizer {
 
             // 清空画布
             this.clearCanvas();
-            
+
             // 绘制频谱条
             this.drawFrequencyBars(frequencyData);
-            
+
             // 绘制波形
             this.drawWaveform(timeData);
-            
+
             // 绘制节拍指示器
             if (this.state.beatDetected) {
                 this.drawBeatIndicator();
             }
-            
+
             // 绘制音量指示器
             this.drawVolumeIndicator();
-            
+
         } catch (error) {
             console.error('Visualization draw error:', error);
             this.drawError();
@@ -148,28 +170,28 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         const barCount = Math.min(frequencyData.length / 2, 32); // 限制条数
         const barWidth = width / barCount;
-        
+
         // 创建渐变
         const gradient = ctx.createLinearGradient(0, height, 0, 0);
         gradient.addColorStop(0, this.config.gradientColors[0]);
         gradient.addColorStop(0.5, this.config.gradientColors[1]);
         gradient.addColorStop(1, this.config.gradientColors[2]);
-        
+
         ctx.fillStyle = gradient;
-        
+
         for (let i = 0; i < barCount; i++) {
             const value = frequencyData[i] / 255;
             const barHeight = value * height * 0.8;
-            
+
             const x = i * barWidth;
             const y = height - barHeight;
-            
+
             // 绘制频谱条
             ctx.fillRect(x, y, barWidth - 2, barHeight);
-            
+
             // 节拍时高亮显示
             if (this.state.beatDetected && Date.now() - this.state.lastBeatTime < 200) {
                 ctx.fillStyle = this.config.beatColor;
@@ -185,27 +207,27 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         ctx.strokeStyle = this.config.barColor;
         ctx.lineWidth = 2;
         ctx.beginPath();
-        
+
         const sliceWidth = width / timeData.length;
         let x = 0;
-        
+
         for (let i = 0; i < timeData.length; i++) {
             const value = timeData[i] / 128.0;
             const y = value * height / 4 + height / 2;
-            
+
             if (i === 0) {
                 ctx.moveTo(x, y);
             } else {
                 ctx.lineTo(x, y);
             }
-            
+
             x += sliceWidth;
         }
-        
+
         ctx.stroke();
     }
 
@@ -215,15 +237,15 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         // 计算节拍动画进度
         const timeSinceBeat = Date.now() - this.state.lastBeatTime;
         const animationProgress = Math.max(0, 1 - timeSinceBeat / 300);
-        
+
         if (animationProgress > 0) {
             const radius = 20 + animationProgress * 10;
             const alpha = animationProgress * 0.8;
-            
+
             ctx.save();
             ctx.globalAlpha = alpha;
             ctx.fillStyle = this.config.beatColor;
@@ -231,7 +253,7 @@ class AudioVisualizer {
             ctx.arc(width - 30, 30, radius, 0, Math.PI * 2);
             ctx.fill();
             ctx.restore();
-            
+
             // 绘制节拍文字
             ctx.save();
             ctx.globalAlpha = alpha;
@@ -249,16 +271,16 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         // 音量条
         const volumeBarWidth = 4;
         const volumeBarHeight = height * 0.6;
         const volumeLevel = this.state.averageVolume * volumeBarHeight;
-        
+
         // 背景
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctx.fillRect(width - 15, height * 0.2, volumeBarWidth, volumeBarHeight);
-        
+
         // 音量级别
         ctx.fillStyle = this.config.barColor;
         ctx.fillRect(width - 15, height * 0.8 - volumeLevel, volumeBarWidth, volumeLevel);
@@ -270,9 +292,9 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         this.clearCanvas();
-        
+
         ctx.fillStyle = '#999';
         ctx.font = '16px Arial';
         ctx.textAlign = 'center';
@@ -285,9 +307,9 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         this.clearCanvas();
-        
+
         ctx.fillStyle = '#f44336';
         ctx.font = '14px Arial';
         ctx.textAlign = 'center';
@@ -300,7 +322,7 @@ class AudioVisualizer {
         const ctx = this.ctx;
         const width = canvas.width / (window.devicePixelRatio || 1);
         const height = canvas.height / (window.devicePixelRatio || 1);
-        
+
         ctx.fillStyle = this.config.backgroundColor;
         ctx.fillRect(0, 0, width, height);
     }
