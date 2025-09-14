@@ -229,6 +229,9 @@ class AudioVibrateApp {
                 return;
             }
 
+            // 重置播放状态
+            this.resetPlayerState();
+
             // 更新状态
             this.state.currentFile = file;
             
@@ -244,6 +247,42 @@ class AudioVibrateApp {
             console.error('Failed to handle file:', error);
             showError('文件加载失败，请重试');
         }
+    }
+    // 重置播放器状态
+    resetPlayerState() {
+        // 停止当前播放
+        if (this.state.isPlaying) {
+            this.pause();
+        }
+        
+        // 重置进度条
+        this.elements.progressFill.style.width = '0%';
+        this.elements.progressHandle.style.left = '0%';
+        
+        // 重置时间显示
+        this.elements.trackDuration.textContent = '00:00 / 00:00';
+        
+        // 重置播放按钮
+        this.elements.playPauseBtn.innerHTML = '<span class="play-icon">▶️</span>';
+        
+        // 清理音频分析器
+        if (this.audioAnalyzer) {
+            this.audioAnalyzer.cleanup();
+            this.audioAnalyzer = null;
+        }
+        
+        // 停止可视化
+        if (this.visualizer) {
+            this.visualizer.stop();
+        }
+        
+        // 停止分析循环
+        this.stopAnalysisLoop();
+        
+        // 重置状态
+        this.state.isPlaying = false;
+        
+        console.log('Player state reset');
     }
 
     // 加载音频文件

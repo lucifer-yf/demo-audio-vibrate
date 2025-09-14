@@ -11,13 +11,13 @@ class VibrationController {
         this.vibrationQueue = [];
         this.isVibrating = false;
         
-        // 振动参数配置
+        // 振动参数配置 - 进一步增强振动强度
         this.config = {
-            minInterval: 50,        // 最小振动间隔（毫秒）
-            maxDuration: 400,       // 最大振动持续时间（毫秒）
-            beatVibrationDuration: 100,  // 节拍振动持续时间
-            intensityMultiplier: 2,      // 强度倍数
-            frequencyThreshold: 0.3,     // 频率阈值
+            minInterval: 20,        // 最小振动间隔（毫秒）- 进一步减少间隔
+            maxDuration: 800,       // 最大振动持续时间（毫秒）- 进一步增加
+            beatVibrationDuration: 200,  // 节拍振动持续时间 - 进一步增加
+            intensityMultiplier: 4,      // 强度倍数 - 进一步增加
+            frequencyThreshold: 0.15,    // 频率阈值 - 更敏感
             syncDelay: 0,           // 同步延迟补偿（毫秒）
             adaptiveSync: true,     // 自适应同步
             latencyCompensation: 20 // 延迟补偿（毫秒）
@@ -31,13 +31,13 @@ class VibrationController {
             syncAccuracy: 0
         };
         
-        // 振动模式
+        // 振动模式 - 进一步增强所有振动强度
         this.patterns = {
-            beat: [100, 50],           // 节拍振动：振动100ms，停止50ms
-            strongBeat: [150, 50],     // 强节拍振动
-            bass: [200, 100],          // 低频振动
-            continuous: [50, 50],      // 连续振动
-            pulse: [80, 120, 80, 200]  // 脉冲振动
+            beat: [200, 50],           // 节拍振动：振动200ms，停止50ms
+            strongBeat: [350, 50],     // 强节拍振动 - 进一步增强
+            bass: [400, 80],           // 低频振动 - 进一步增强低频感受
+            continuous: [100, 30],     // 连续振动 - 增强持续感
+            pulse: [150, 80, 150, 120]  // 脉冲振动 - 增强脉冲感
         };
         
         console.log('VibrationController initialized, supported:', this.isSupported);
@@ -288,7 +288,7 @@ class VibrationController {
         
         if (beatType === 'kick') {
             // 踢鼓节拍：更强烈的振动
-            pattern = intensity > 0.8 ? [200, 50] : [150, 50];
+            pattern = intensity > 0.8 ? [300, 50] : [200, 50];
         } else if (intensity > 0.8) {
             // 强节拍
             pattern = this.patterns.strongBeat;
@@ -297,7 +297,7 @@ class VibrationController {
             pattern = this.patterns.beat;
         } else {
             // 轻微节拍
-            pattern = [80, 30];
+            pattern = [120, 30];  // 增强轻微节拍
         }
 
         // 根据BPM调整振动间隔
