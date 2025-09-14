@@ -151,9 +151,9 @@ class AudioVisualizer {
             this.drawWaveform(timeData);
 
             // 绘制节拍指示器
-            if (this.state.beatDetected) {
-                this.drawBeatIndicator();
-            }
+            // if (this.state.beatDetected) {
+            //     this.drawBeatIndicator();
+            // }
 
             // 绘制音量指示器
             this.drawVolumeIndicator();
