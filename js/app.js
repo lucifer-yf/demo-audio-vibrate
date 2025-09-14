@@ -367,9 +367,9 @@ class AudioVibrateApp {
             
             // 更新振动信息显示
             if (analysisData.beat && analysisData.beat.detected) {
-                this.elements.beatInfo.textContent = `检测到节拍 (${analysisData.beat.bpm} BPM)`;
+                this.elements.beatInfo.textContent = `${analysisData.beat.bpm} BPM`;
             } else {
-                this.elements.beatInfo.textContent = '未检测到节拍';
+                // this.elements.beatInfo.textContent = '0 BPM';
             }
             
             // 更新音量显示
