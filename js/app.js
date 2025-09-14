@@ -339,6 +339,7 @@ class AudioVibrateApp {
             
             // 触发振动
             if (this.state.vibrationEnabled && this.vibrationController) {
+                this.vibrationController.enable();
                 this.vibrationController.processAudioData(analysisData);
             }
             
